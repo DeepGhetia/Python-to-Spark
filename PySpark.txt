@@ -1,0 +1,248 @@
+Note:-
+1. Pyspark is list and tup friendly and not dic.
+2. Packing and Unpacking concept is imp here.
+3. pyspark follows strictness (example data types like array and map) and immutability (example creating a new df).
+4. In pandas/py boolean and integer are bhai bhai but not in spark due to strictness
+5. Alwasy keep in mind while filtering use and/or properly based on requirement
+    1. also remember 'and' has higher precedence hence always use 'paranthesis ()' to aoid this issue
+6. Most important withcol and select works same row wise but there is a big dif
+    1. withcol works row wuse only and no groupbing/agg allowed also withcol is tough to use with more col at a time
+    2. select is dynamic wiorks rowwise also and agg also allowed but not together note that
+7. date will always b read in y,m,d,h,m,s format only and nothing else is allowed but can be changed later
+8. always pass data in iterable/df in row based format only other wise df will fail this is not pandas
+9. .explain() will give physical plan if want all parsed, analyzed, optimised, phisical. then use .explain(True)
+10 very imp when there are multiplle col with same name then instead of col() or '' use df[''] this saves from alaising trap.
+
+from pyspark.sql import SparkSession
+from pyspark.sql.types import *
+from pyspark.sql.functions import col, lit, row, upper, lower, cast(astype can also be used but astype is builtin), concat, datediff, concat_ws, when, round
+#an hack cocnat() and concat_ws() does implicit casting of int/float etc to stirng before concatenating.
+
+emty df can be created using 4 methods ony - 
+    1. emptyRDD()
+    2. parallelize()
+    3. structtype([])
+    4. structype along with structfield\
+
+to convert rdd to df - toDF([col names]) or createDF(pass rdd here, schema=shcema)
+
+File Formats - //pyspark==parquet (default)
+#reading4
+Types -
+1. Internal - DataLake (distributed)
+2. External - Oracle (Single Source) //not recomended
+
+file in df - types(csv, json, jdbc, parquet, orc, table)
+    1. spark.read.csv('file path/folder path (hdfs)', 
+                       header=True/False, 
+                       inferSchema=True/False, 
+                       samplingRatio=.1(very imp in production but not recommended),
+                       schema=shcema,
+                       dateFormat='',
+                       sep='|',(default comma),
+                       mode='failfast/permissive(default)/dropmalformed')
+    2. spark.read.json('file path')
+    3. spark.read.parquet('file path',mergeSchema=True (to enale schema evolution))
+    4. spark.read.orc('file path')
+    5. spark.read.table('pass view/table name')
+
+#writing file to target (file count = partition cnt)-
+    1. df.write \
+       .mode('overwrite/append/ignore/errorifexsists') \
+       .compression = 'snappy/lzo/gzip/bzip2', \
+       .partitionBy(['col-nme']) \   ##so when you partiton by col then that col's distinct count = folder count with file count = partition cnt
+       .bucketBy(no of files, [col name]) \ ##creates files only and no = no passed per partition (ex:- if 9 part then every part has no of files mentioned by user) but can be saved as table only
+       .csv('folder path only - as this is not pandas') //for bucket by e cannot use csv,paruet etc hence go for option('path','.......')
+       .saveAsTable('dbname.tabname')
+
+    | File    | Compression | Splittable? | Why                      |
+    | ------- | ----------- | ----------- | ------------------------ |
+    | CSV     | None        | ✅           | Plain text               |
+    | CSV     | Gzip        | ❌           | Single compressed stream |
+    | CSV     | Snappy      | ❌           | No sync markers          |
+    | CSV     | Bzip2       | ✅           | Built-in block markers   |
+    | Parquet | Snappy      | ✅           | Format controls blocks   |
+    | ORC     | Snappy      | ✅           | Format controls stripes  |
+
+#selecting a col
+    # 1. df['col'] -> pandas style
+    # 2. df.col1 \\this is little risky based on the col name -> df_name.col_name  //ambiguity problem
+    # 3. col('col1') \\for this we need col form pyspark.sql.functions    -> col object
+    # 4. col('name.firstname') or df['name.firstname'] note here name.firstname mein firstname is nestedcol -> col object
+
+#Big Update - 
+1. df[col] - while chaining exp this can give error then second chain is applied to first col created as df[col] return col object #hence df[col] not good for chaning
+2. col(col1) -  good for chaining and always recomended
+
+lit()
+    #lit method is used to add any literal or broadcast the literal to existing df in a new/existing col
+    # this can be used with withColumn() method
+
+#withColumn(), withColumnRenamed(), drop()
+
+    1. we can change the data type using this mthod for existing one using cast() from fucntions or astype a default functions
+    2. we can create a new col or update the existing one - 
+        //we can add lit() - adding literal val
+        //perform arithmatic ops
+        //perform comparison operation also like boolean filtering to get the values.
+        //perform all sorts of operations on diff cols
+        //use multiple col methods from functions
+            Ex:- df.withColumn('first', col('status')=='Success') -> this is similar to applying boolean logic to a new df col in pandas
+        //using when().otherwise() and &,|,~ in then along with () also note - 
+            - syntax - when(cond,val).otherwise(val)
+        //we can rename the cols using withColumnRenamed(oldname,new name) to rename multiple loop a list of tup and then unpack them using *i
+        //also can drop the cols using df.drop(colname) to drop multiple directly pass unpacked list like *lt
+    3. Note all these can be done In a single line using chaining concept similar to pandas.
+
+        Ex:- df = (
+            df.withColumn("new_col", col("a") + 10)
+            .withColumnRenamed("b", "b_new")
+            .drop("c")
+        )
+
+    4. withColumn()
+        //concept of renaming the nested columns is also an impotnat concept as doing it and dropping the main col makes sense.
+
+#df.fillna() -> exactly same as pandas no change but diff
+    1. between coalesce for (fewer cols) and fillna (for entire or small df)
+    2. repalcing one col value to other can be done using colaesce but not in fillna
+
+#df.select - for selecting the columns/creating new one's same as withColumn
+syntax - select(str/col)
+1. df.select(col('col'),col('col2')) to select few cols
+2. df.select(df.colmuns) to seelct all cols
+3. df.select(df.colmuns[1:3]) to select sliced colmuns same as pandas/py
+4. we can only use alias/expr() to create a new col in select no other way
+5. we also can pass a list of col object basically col()
+
+#expr() from sql.functions module -------- but can take only one expression or one column only new or old ///very imp
+complete sql can be written in this expr() function alsong with alias like sql 'as'
+Ex:- expr('case when price between 80 and 500 then "decent" when price between 501 and 800 then "good" else "very good" end as comput')
+
+#df.seelctExpr(string only)
+1. in selectExpr we have to string only and expression can be directly written in sql expr
+Note:- in case of selectexpr we can pass only string but not just a single string for select 3 col that is wrong every new or old col 
+       has to be individually passed inside the string.
+
+NULL VALUES - 
+***while reading this is very imp - 
+    if there is data type mismatch while reading the data then default behaviour or spark is it gives null values for the values it failed to parse the data.
+
+    However can be corrected with other modes - 
+        1. fail fast (error if datatype mismatch)
+        2. permissive (default if mismatch then null)
+        3. dropmalformed (drop recs if datatype mismatch)
+
+1. we can see null values  -
+//isNull()/isNotNull()
+but cant directly use sum() as strict type also to check every col null values ek saath we have to use list comp in select
+
+2. we can drop null values - df.na.drop(how='any/all', subset=[]) or ddf.dropna(how='any/all', subset=[])
+Note:- spark doesnt drop columns as it doesnt have axis param but pandas does
+
+DUPLICATES:-
+to check duplicates use rank/groupby  - sql logic as there is none in spark
+1. to get only unique recs - having count = 1
+2. to get the count of dup recs incluing unique in dup - having count > 1
+3. to get only dup values then rownumber() and rank>1
+4. dropdup + count()
+
+to drop duplicates same as pandas  - 
+    1. df.distinct() check for complete rows no other paratmeter it takes
+    2. df.dropDuplicates(subset=) // same as pandas but no keep=
+
+Very Imp:-
+GETTING AGG VALUES W/O GRUPING CAN BE HANDLED USING select()
+Ex:-
+1. select(sum(col('amt)).alias('amt))
+2. select(count('*').alias('cnt'))
+3. select((100.0*(sum(expr('CASE WHEN rebuffer_events > 0 THEN 1 END as event'))/count('*'))).alias('val'))
+
+GROUPBY-
+1. syntax = df.groupBy('' or ['','']).agg(
+    count('' or '*'),sum(),max(),min(),mean/avg()/countDistinct('' or '*')('' or '*'),approx_count_distinct(),sumDistinct(),first(),last()
+    //note here '*' means complete row like count(1) or count(*) in sql
+)
+2/3/4. sum(case when amount > 200 then 1 else 0 end) --->
+    we can directly use when().otherwise() like case when in sql in sum() or any method ->
+        agg_df = df.groupBy("group_key").agg
+        (sum(when(F.col("amount") > 200, 1).otherwise(0)).alias("cnt_amount_gt_200")) //all the rest 3 staaments in pandas are covered in this single line
+
+Imp:-
+- collect_list(),collect_set() both are used to merge rows to array
+- also we can use many other functions like round/ceil/floor etc directly on agg fun like round(sum()) not like pandas o be used after grouping.
+
+SORTING (2 OPTIONS)-
+Syntax:- 
+1. df.orderBy(col('').asc(),col().desc())
+    ordering func - 
+        1. asc()/desc()
+        2. asc_nulls_first()/desc_nulls_first()
+        3. desc_nulls_last()/asc_nulls_last()
+
+2. df.sort(['dept','salary','age'],ascending=[True,False,True]) //same as pandas but sort() instead of sort_values()
+
+#running agg and ranking and lead_lag
+can be HANDLED directly under expr(str) -> here string is direct remember
+
+JOIN'S (MOST IMP) - 
+Now there are 3 things - 
+1. without broadcast (called as shuffle sortmerge join) - order - O(nlog n)
+    in most the spark systems the broadcast will be enbled by default hence if we want to use costly shuffle irrespective we do not care about cost then 
+    we need to explicitly disable braodacting by spark.sql.set('spark.sql.autoBroadcastJoinThreshold','-1')
+    syntax:- by default also works but we can also give - df.join(df2.hint('shuffle_merge'),df1[id]==df2[id],how='left_outer')
+2. with broadcast hash join (no shuffle called as mapside join) - and broadcast can only happen because the df should be small enough 
+   which is 10mb so that it can fit in driver memory as driver will broadcast the same as it knows the location of executor. and 
+   this braodact table is called hash table (dic) so it is very fast operation of the order of O(1)
+3. shuffle hash join - similar to broadcast hash join but there is shuffle invloved and no sorting just map based on hash key like dic in python
+                     - can be done by syntax - df.join(df2.hint('shuffle_hash'),df1[id]==df2[id],how='left_outer')
+***Ver Imp***
+4. sort merge bucket join (when we have 2 big/huge tables) - 
+This optimisation can be used - 
+Step1:- first bucket+sort using write but file no should be same for both df's and also keys should be same
+Step2:- then join botht the tables this will just use sort merge tech no shuffle invloled huge gain.
+
+Syntax 
+1. Inner - 
+    final = df.join(cust,df['cust_id']==cust['id'],how='inner')
+2. Leftouter/rightouter/outer - 
+    final = df.join(cust,df['cust_id']==cust['id'],how='right_outer/right or left/left_outer or full/outer/full_outer')
+3. left_semi or semi  = exists (checking the existence)
+    ex:- 
+    tab1 - [[1],[1],[1],[1],[2],[2],[3],[3],[3],[4]]
+    tab2 - [[1],[1],[3]]
+    output - [1,1,1,1,3,3,3]
+4. left_anti or anti = not exists (left join + null filtering in right table is null)
+    ex:- 
+    tab1 - [[1],[1],[1],[1],[2],[2],[3],[3],[3],[4]]
+    tab2 - [[1],[1],[3]]
+    output - [2,2,4]
+
+| Scenario   | Join Type | Broadcast? | Which Side                |
+| ---------- | --------- | ---------- | ------------------------- |
+| Both large | Any       | ❌          | —                         |
+| One small  | Inner     | ✅          | Small table               |
+| One small  | Left      | ✅          | Right only                |
+| One small  | Right     | ✅          | Left only                 |
+| Any size   | Full      | ❌          | —                         |
+| Both small | Inner     | ✅          | Smaller (or right if tie) |
+| Both small | Left      | ✅          | Right only                |
+| Both small | Right     | ✅          | Left only                 |
+
+There are 3 problems that can occur during joins - 
+1. when wide tran happens there are 200 part created and not all might have data leaving additional over head on compute
+2. partition skew - i.e. one or two keys might br repeating more no of times leaving one partition to hold more data and indirectly 
+   no parallelism for that partition - to solve we use salting i.e. dividing the partition into sub part by manually adding a new sub key
+3. before spark 3.0 there was no AQE support hence no DAG were created dynamically one DAG is created no change would happen.
+
+*********imp*********
+And to solve all these Problem we have concept adaptive query execution (AQE) - default on after 3.2 before that enable manually
+Adaptive Query Execution - 
+1. the first problem cn be solved using AQE - 
+    initially lets say we had spark.conf.get('spark.sql.adaptive.enabled') = False
+    we then enable this and consider the example of order status instead of 200 partiton getting created we created at the max 9 can be less also.
+    this is called "dynamic coalesing no of shuffle partition"
+2. instead of manual salting we use aqe -
+    i.e. what happens is the we have partition and bigger partition is divided with intent that evry sub partiton has same no of rec/size and then join takes place.
+3. instead of static DAG aqe can help saprk to dynamically swtich join strategies based on run time stats and this happens during shuffle and shuffle is not avoided in this case but 
+   braodcasting is used instead of shuffle sortmerge join

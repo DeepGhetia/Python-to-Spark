@@ -1,0 +1,29 @@
+word count prob - 
+    lt = ['deep is good','and has a good mind','is good by heart']
+    rdd = spark.sparkContext.parallelize(lt)
+    rdd = rdd.flatMap(lambda x: x.split())
+    rdd = rdd.map(lambda x: (x,1))
+    rdd = rdd.reduceByKey(lambda x,y: x+y)
+    rdd.saveAsTextFile('/user/itv022843/wordwrapp/')
+
+    #read
+    rdd = spark.sparkContext.textFile('/user/itv022843/wordwrapp/*')
+    rdd.take(100)
+
+top 10 using sortBy()
+    final = rdd.map(lambda x: (x.split(',')[-2],1))
+    final = final.reduceByKey(lambda x,y: x+y)
+    final = final.sortBy(lambda x: -x[1])
+    final.take(10)
+
+cust who ordere more than once (use of filter)- 
+    final = rdd.map(lambda x: (x.split(',')[-2],1))
+    final = final.reduceByKey(lambda x,y: x+y)
+    final = final.filter(lambda x: x[1]>1).map(lambda x: x[0])
+    final.collect()
+
+sortByKey(ascending=) Ex-
+    lt = ['deep is good','good means very good','hahah very good deep']
+    rdd = spark.sparkContext.parallelize(lt)
+    rdd = rdd.flatMap(lambda x: x.split()).map(lambda x: (x,1)).sortByKey(ascending=False)
+    rdd.collect()

@@ -1,0 +1,17 @@
+so in production we do not work with note books hence we use spark-submit:-
+Syntax:-
+spark-submit \
+--deploy-mode cluster (by default is client i.e. interactive mode) \
+--master yarn \
+--num-executors 1 \
+--executor-cores 1 \
+--executor-memory 1G \
+--conf spark.dynamicAllocation.enabled=false \
+fullpath/codename.py(absolute path)
+
+for spark3:- use spark3-submit
+
+Also note the precedence level
+1. spark code config
+2. spark submit if exec/mem not mentioned in code
+3. if nothing is mentioned in spark3-submit then default admin config

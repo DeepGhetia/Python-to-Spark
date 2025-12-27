@@ -1,0 +1,47 @@
+tuple (immutable) -
+cannot do anthing with tuple after creation just can del the complete tuple
+indexing/accessing is possible
+
+dict - 
+1. always note list(i) where i is dict gives only key values in list similar to waht list(i.keys()) does.
+2. always remeber when use use dic without dic.values() or items() it is always keys in any given things***
+2. # Valid keys
+    d = {
+        "name": "Alice",
+        42: "Answer",
+        (1, 2): "Tuple Key",
+        True: "Boolean Key",
+        frozenset([1, 2, 3]): "Frozen Set Key"
+    } #invalid types: list, set, dict
+    #key should be immutable and values can be im/m
+3. copy - dic1 = dict(dic)
+4. concat dict = "|"
+5. del dic['a'] -> to delete key and value
+6. always try to keep in mind to use the list or tuples when multiple dic's are present. - refer dict.py
+7. jab tum pura ek sath dic dekh sakte hon then y go for for loop.
+8. always keep mind and eyes wide open dont over complex the logic.
+9. list(dict) is the new normal.
+10. always remeber when iterating key and values together to check ame elements always go for for -> for loop (double for loop).
+11. remeber this line when you are adding the var of some dic to same var then try this kind of logic. 
+val = dic['Carla ']
+print(val)
+for i in range(1,len(lt)):
+    val = val[lt[i]]
+12. always note 
+    say i have t = ('deep',1)
+    print(dict(t))
+    here this is not going to work as len of tuple is 2 always note for something to be cnverted to dict the len should always be 1 with 2 elements.
+    ideally like this t = [('deep',1)]
+13. one of the very good questions - https://www.w3resource.com/python-exercises/list/python-data-type-list-exercise-94.php
+this example shows tuple and dic bahi bhai.
+14. the OG method - whenever you have value but want key - 
+        dic = {1:'deep',2:'ghetia',4:'is',3:'good'}
+        val = ['ghetia','deep','good']
+
+        final = []
+        for i in val:
+            // this is the line - temp = [a for a,b in dic.items() if i==b]
+            final.append(temp[0])
+        print(final)
+    
+15. in dic comprehension while using if else statements we cannot declare key:val in else block we will have to gvie only value

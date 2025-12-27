@@ -1,0 +1,7 @@
+when ever we fire hdfs/hadoop command it will iteract with namenode
+    hadoop fs / hdfs dfs (internally it calls hadoop fs only) - list of all commands available
+    hadoop fs -ls - home directry
+    hadoop fs -mkdir /user/
+    local to hdfs - 
+        1. hadoop fs -put <local file path> <hadoop path>
+        2. copyFromlocal

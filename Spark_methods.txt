@@ -1,0 +1,130 @@
+Default methods
+    1. astype()
+    2. between()
+    3. contains() -> no other options like case=True/False this method is by default case sennsitive also multiple | cannot be used hence use & or | operations in braces.
+    4. isin([]) we can also use ~col('col1').isin([]) for interchangigng values (smart move)
+    5. like() similar to sql -> One note in pandas we have | inside contains for multiple but in spark we have to col('col1').contains('a') | (col('col2').contains('b'))
+    6. substr() -> col('name').substr(pos,len) #here lenght is imp but not in sql
+    7. when().otherwise() //but when() is not a built in method
+    8. startswith() and endswith()
+    9. isNull() and isNotNull() note diff frm pandas notnull() and isnull()
+    10. alias() -> note this gives only temp rename not like withColumnRenamed() //used in select 
+    11. expr(str) -> used to use sql inside this pure sql like postgre eveything works // this is not a default method -> this is called as column expression
+        Also expr can be used with any function not just withcolumn and select ------- remember
+        
+Functions/Methods under pyspark.sql.functions - 
+2. col() is used to select the col
+3. round, ceil, floor, abs ,pow, sqrt
+4. for literal we use lit() -> very imp
+5. when()/otherwise() -> very imp
+6. colaesce() for getting first not null value coalesce(col1,col2,col3) note this is diff from df.colaesce() //repartitioning
+7. greatest() and least() works same a coalesce() across columns but gives max and min values also ignores the null means will return the output
+
+Str - 
+1. upper, lower, length, substring, initcap() same as (title in py)
+2. trim , ltim, rtrim
+3. substring (len mandatory) very important
+4. to replace we have to use regexp_replace(col,this,with that)
+5. translate() ->
+        ex:- translate(col, 'aA', 'bB')
+                this is also used to replace but char to char mapping a->b, A->B
+6. cocnat() vs concat_ws()
+    //cocnat is used to concat multiple strings with literal but literal explicitly passed but cocnatws not passing extra
+    //null in one string in concat means complete string null but not in case of concat_ws
+    //note both support implicit converstios from int/float tostring that measn works for other types except strng
+
+    cocnatws (usecase):-
+    1. join() in python is applied to a list consider as it as single col we can do same in spark concat_ws(','col('name'))
+    2. cocnatws can also be used to concat 2 or more cols
+
+7. for index/find we have instr(colname, 'get pos for this') //if pos not available then 0 but in py find gives -1 and index gives exception
+8. split() in spark split(colname,sep) //split using . we  have to use \\. and to mimic list(str) -> split(col,'')
+
+Datetime - 
+before moving to dattime func's we got to cover the datetime data dtypes
+1. DataType()
+2. TimestampType()
+3. TimestampNTZType()
+
+Always Note:- 
+1. while working with datetime while reading check properly if string or datetime generally it is string always we need to explicitly cast
+2. for filtering we can use string as no other option also implicit converstios happen
+3. using other func such as .dt.day we get integer
+4. always check the formatting
+
+datetime func's built- 
+1. current_date()
+2. current_timestamp() / now()
+3. Conversion from string to date/Timestamp or Timestamp to date also
+    to_date(pass date, format) same as postgre format lowercase
+    to_timestamp(pass timestmp, format) as as postgre
+4. convert datet/timestmp to string
+    date_format(pass date, format) //no this is diff from postgre (to_char()) -> yyyy,MM,MMMM,M,dd
+5. make date/timestamp from integers (Strict format)- 
+    make_date(y,m,d)
+    make_timestamp(y,m,d,h,m,s)
+6. timedelta in spark - 
+    1. date_add(col,no of days)
+    2. date_sub(col,no of dats)
+7. relativedelta in spark -
+    1. add_months(col, no of months) for sub give neagetive value
+8. datediff(col1,col2)
+9. year(),month(),day(),dayofweek,dayofmonth,dayofyear,quarter,hour,minute,second,weekofyear
+
+ArrayType Functions -
+1. to create an array from multiple col - array(col1,col2,col3)
+2. now similar to python's [1]*3 = [1,1,1] in spark it is array_repaet(col(col),3)
+3. array_position(col,ele) //if pos not available then 0 but in py index is used
+4. to acces it is col('col1')[0] //note here we can use slicing or .getItem()
+5. length of array - size() -> only for array type
+6. array_contains(col,val)
+7. array_distinct(col) // to remove dup
+8. array_union(col1,col2) // same as lt+lt1 in py
+9. sort_array(col, asc=True/False)
+10. arraysss_zip(col,col)
+11. explode() -> array to indivial rows
+12. indivial rows to array back using agg and collect_list()/collect_set() in groupby
+
+Filter() vs where()
+    df.filter()
+        1. the input of filter() is same as boolean filtering in pandas i.e. same (),!|,~,&
+        2. we cn also give sql like filtering but in side '' Ex:- df.filter('age > 6')
+    df.where()
+        same as filter
+    Note:- only diff bteween 2 is filter is generaly used for pythonic coding and where for sql under the hood they are dicto same.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Point to learn
+need to learn - 
+Interval arithmetic:
+- col + expr("INTERVAL 5 DAYS")
+- col - expr("INTERVAL 3 HOURS")
+- months_between(col1, col2)
+
+Edge Cases:
+- Handling invalid dates (safe casting)
+- Daylight saving changes
+
+Performance:
+- Partition pruning with datetime
+- Avoid casting on partition columns
+
+Integrations:
+- Consistency between Spark and Parquet/Delta formats
+- Python datetime vs Spark SQL datetime

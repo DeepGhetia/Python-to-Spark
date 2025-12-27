@@ -1,0 +1,20 @@
+df.rdd.getNumPartitons()
+spark.sparkContext.defaultParallelism
+spark.sparkContext.defaultMinPartitions
+spark.sql.warehouse.dir
+
+1. spark.conf.get(spark.sql.autoBroadcastJoinThreshold)
+2. spark.conf.get(spark.sql.adaptive.enabled)
+3. spark.conf.get(spark.sql.shuffle.partitions)
+4. spark.conf,get('spark.sql.files.maxPartitionBytes')
+5. spark.conf.get(spark.sql.files.openCostInBytes')
+9. spark.dynamicAllocation.enabled
+10. spark.sql.executor.cores / memory / instances
+12. .config('spark.executor.memoryOverhead')
+13. .config('spark.executor.memory')
+14. .config('spark.memory.offHeap.size')
+15. .config('spark.executor.pyspark.memory')
+16. .config('spark.memory.fraction','.8') can increase 60 perc of storage+exec memory to more by lessing from user memory
+17. ,config('spark.memory.storageFraction') can increase execution memeory and less storage memeory.
+17. config('spark.memory.offHeap.size', '2G')
+18. config('spark.memory.offHeap.enabled', True)

@@ -1,0 +1,304 @@
+1. Always remeber list is the key here in pandas
+2. sum(case when col = True then 1 else 0) / sum(col1) (SQL) -> appropriate func without groupby in pandas
+Some rules in Seres and Df
+    1. series can be created with scalar/list/dic with or without other parameter but for a single None value we have to pass list
+        if dic - key(index) and values(data)
+    2. DF can be created with list/dict/tup etc and scalar can be also passed but index and col both should be added.
+        ALso index and col both have to passed with iterator we cant pass single scalar value
+    3. adding values to col in df when newly created we can add scalar,lt,series as index is already present in existing df.
+        But note here when series is passed the index is imp as the data is mapped with existing df index if no match then nan.
+    4. But one catch while pasing None value in s it should not be a scalar value.
+    5. Any operation along with Null will always return Null value.
+Always Note (FOR DATETIME hack):- 
+    1. while working with datetime while reading check properly if string or datetime generally it is string always we need to explicitly cast
+    2. for filtering we can use string as no other option also implicit converstios happen
+    3. using other func such as .dt.day we get integer
+    4. always check the formatting
+
+1. Series - 
+* series can have multiple mixed dtype(data types) just like a list.
+* by default - int64, float64, (mixed-types) - object, all string (object(slower) or string(faster)), dict,list(object)
+* series vs df - series no col name but df does.
+* syntax = pd.Series(data, index, dtype, copy, name)
+    data - lt, dic, etc
+    index - default - [0,1...] [optional]
+    dtype - optional
+    copy - optional [two options - True or Fasle]
+    name - placeholder if only playing with series but when you convert s to df then name will act as col name in df created.
+* converting s to df is easy using pd.concat (horizontal or vertical stacking) or pd.merge
+        syntax - 
+        s = pd.Series(dic, index=[1, 2], name='deep')
+        s1 = pd.Series(dic1, index=[1, 2], name='ghetia')
+        df = pd.concat([s,s1],axis=1)
+* s.reset_index(drop=true) // this resets the index from anything to 0,1,2,3...(posiitonal unique)
+  but by default drop=False(This moves the labelled index to column under index column name)
+* similarly there is this parameter ignore_index = True // strictly note this is not a function just a paratmeter used in pd.concat etc.
+  this works only with some funcs such as pd.cocnat also note it resets index only when axis=0 and resets col when axis=1
+* we can shuffle the series using reindex method - s = s.reindex([pass the index's]) //we can also pass columns=list of cols Note:- this is very imp as we can add extra cols look at lc prob:- 1179
+* we can also set a col to index using df.set_index(colname, inplace=True/Fasle)
+* we can also use df.sort_index() to sort the rows based on index of the df/s
+* now to convert df to s - 
+        syntax - 
+        1. s = df.squeeze() #single col in df
+        2. s = df['name'].squeeze() #multiple cols
+        3. s = df.iloc[2].squeeze() #converting individaul rows to series
+* also type conversion of a series - 
+    s = s.astype('float64') for a single df col df[] = df[].astype() for multiple col's df = df.astype(dic) for applying it to all col in df df = df.astype('int')
+* two imp methods in pandas are
+    1. series to df conversion s.to_frame()
+    2. serues to list conversion s.tolist() for df it is //single-col -> df[].values.tolist() //mul-col -> df.values.tolist()
+* for series it is s.dtype(series) not s.dtypes(df's)
+* attributes and imp method's - 
+    # df.info() (proc contents)/df.describe() (proc means) //works for both series and df
+    # s.dtype -> type
+    # s.values -> values in nupmy array form of list not normal list to convert to normal list [i.item() for i in i.values]
+    This above conversion can directly done from s.values to list if dtype is string or object not int64 or float64.
+    //just a tip never use s.values it is just for info always go for s.tolist()
+    # s.name -> name or placeholder // df.columns in df
+    # size and count have major diff count(not null values only) and size (all values)
+    # s.index -> list of but of type pandas can be converted easily to list
+    # s.size -> len for series and row*col count for df's
+    # s.shape -> (row,col) but in this case (always row,)
+    # s.empty -> true if empty
+    # s.isnull()/notnull() -> this is a method gives true if blank else flase but row index wise
+    # s.unique() -> it gives numpy array of unique values and follow same process same as s.values
+    # s.nunique() -> (same as count()) give the count of unique values **count in series but in df it is dicto same as count() just has dropna extra
+    # s.isnull().any()/all() -> single True / False value
+    # s.head()/s.tail() -> by default 5
+    # s.round(2) / df.round(2) roud method.
+    # s.loc[] / s.iloc[]
+    consider this below example to better learn - 
+        lt = [1,2,3,4,5,6,7,8,9,10,11]
+        s = pd.Series(lt, index=[9,9,9,9,9,9,9,9,9,9,9], name='deep')
+        print(s.iloc[9]) #this gives index(not man made) based retrieval also here you can get only one value as index is unique
+        print(s.loc[9]) # this gives index(man made) based retrieval but here you can have duplicates
+    # s.hasnans -> return true if any nan value else False not a record level - only series method
+* use of s.str and s.dt attribute but along with str and dt methods - 
+    STR.
+        Note:- str can only be used when data is object and string only and similar for datetime64[ns] as dt
+            # we can use the str.func() syntax - 
+            1. s.split(), s.str.lower(), upper(), strip(), lstrip(), rstrip(), title(), capitalize(), replace() - almost all the string func works
+            2. we can use s.len() to get the len
+            3. for substring/slixcing we can use str.slice(strart, end, step)
+            4. str.contains(data, case=True/False, na(np.nan)=True/False, regex=True/False) - pattern matching imp concept.
+        Note in str attribute is all the functions are same as python just few differences. // '|' we can pass this for more than one data
+        Also for reversingor choosing a string from list etc:- we can directly use .str[::-1] or .str[0]
+    DT.
+        Note in: Dt we have multiple attributes -
+        1. .dt.day, month, year, hour, minute, second, microsecond, nanosecond (all date attributes), .dt.days
+        2. .dt.date, .dt.dayofweek, .dt.isocalendar().week .dt.quarter (all date attributes)
+        3. .dt.time, .dt.total_seconds() (all time attributes)
+        4. to get the week no in a month we use .dt.isocalendar().week
+        Note in: Dt we have multiple methods -
+        1. .dt.strftime() to string
+        2. p.to_datetime(s, format='') to datetime
+        3. noraml strftime %u gives 1-7 but dayofweek in series gives 0-6
+        
+* null's in pandas is consistent acrss dof and series - 
+    # majorly sirf 4 type ke null hai in pandas - 
+    # np.nan -> works for float64, object toh agar mere code mein [1, np.nan, 2] toh type float64 ho jayega
+    # pd.NA -> works for Int64 not int64, string, object boolean not bool(normal pandas)
+    # None -> works for object /string but when [1,none,2] then output is float64
+    # pd.NaT -> only datetime, timedelta
+
+    Value	isnull()	Default dtype	Notes
+    np.nan	✅ True	float64, object	Default for numeric nulls
+    None	✅ True	float64 or object	Casts to np.nan or object
+    pd.NA	✅ True	depends on dtype	Requires nullable type (Int64, etc.)
+    pd.NaT	✅ True	datetime64[ns]	Specific to time types
+
+    | Data Type | Recommended `dtype` |
+    | --------- | ------------------- |
+    | Integer   | `"Int64"`           |
+    | String    | `"string"`          |
+    | Boolean   | `"boolean"`         |
+    | Datetime  | `"datetime64[ns]"`  |
+
+* filtering (series) and (DataFrame) - Brackets is the most imp things
+    # in filtering the main thing to note is this line condtion = udf and final_s = s[condition]
+    # we can use multiple condition using &(and), |(or), ~(not) oper - do check series.python
+    # also brakcets are very imp when it comes don to filtering.
+    # two main scenarios - 
+        1. creating a new df - df[((df['A']>2) & (df['C']>10))][['C','D']]
+        2. just getting a saclar value - val = ((df['A']>2) & (df['C']>10)).sum() note here before sum() we will get  aseres of true/false values
+
+*PD.CONCAT([frame1,fram2], axis=0/1, join='outer/inner'(by default outer), sort=True/False(default = False), ignore_index=True/False(default = False)) - 
+pd.concat([]) - performs union-all when axis=0 which is by default oper and for union use drop_duplicates()
+and when axis=1 then it does horizontal appending but based on labelled index remeber that this is imp 
+also there should not be any duplicates in any of the labelled index.
+
+// pd.cocnat cheatsheet - (when axis is 0 no role of index whats so ever siimilarly when axis is 1 no role of col)
+1. Seires - 
+    axis = 0 and index same or different - 
+    join inner - union all, index as is
+    join outer - unoin all, index as is
+
+    axis = 1 (index logic gets activated) and index same - 
+    join inner - append horizontally but match the index comon index values are matched
+    join outer - append horizontally since index is same so no issue
+
+    axis = 1 and index not same - 
+    join inner - blank df if no index matches as index is imp
+    join outer - append horizontally since index is not same so NA values added
+
+2. DataFrame - 
+    axis = 0 and index is same or not same:
+    join inner - union all but only where cols are present in both df's and empty df if no col is present in both df's
+    join outer - union all with all the col from all df's and NA values where-ever needed
+
+    axis = 1 and index is same:
+    join inner - since axis is one hence index is mapped and add the col horizontally only for common index
+    join outer - since axis is one hence index is mapped and add all col horizontally
+
+    axis = 1 and index is not same:
+    join inner - since axis is 1 hence map based on index if no index is matching then return empty df or return appropriate index only which matched.
+    join outer - since axis is 1 hence map based on index if no index is matching retun all as outer
+
+| Join Type            | Function to Use            | Works on                      |
+| -------------------- | -------------------------- | ----------------------------- |
+| **Index-based join** | `pd.concat()` or `.join()` | Index (row labels)            |
+| **Key-based join**   | `pd.merge()`               | Column values (like SQL `ON`) |
+
+* two imp methods are all() and any() in pandas also.
+* df.drop([0,1], axis=0, inplace=True/False) or df.drop(['a','b'], axis=1, inplace=True/False) //axis has to be 2nd in position basis
+
+* Methods to deal with Null Values - 
+    Detect Null values - All 4 methods return row by row true / false
+        s.isnull() / s.isna()
+        s.notnull() / s.notna()
+    Drop the rows / columns - 
+        df.dropna(axis=0/1, how='any/all', inplace=True/False, subset=[col1,col2]) //axis=0 for row ad axis=1 for col
+        ***also remeber when every you use subset inside dropna it will drop only rows where we look only for specified col's
+        *** series mein axis=1 nahi hota hain
+        So if you want to drop a specific col only then go for this type of code - 
+            //for i in df.columns:
+                //if df[i].isna().any() == True:
+                    //df.drop(i, axis=1, inplace=True)
+    Fill values in place of blank - 
+        df.fillna(value, method=None/pad/ffill/bfill, inplace=True/False)
+            // value can be anything except list can be (single val, dict, ser, df's)
+        df.iterpolate(method='linear',inplace=True)
+        //this is basically guessing the data between a start and end point remeber it.
+        // works only for integers gives warning for string types
+
+* Methods to deal with duplicate values (subst passed is taken together i.e. all the cls in subset taken together) - 
+    *to check the duplicate values in 
+        series = s.duplicated(keep='first/last/' or false) #keep = first means mark first rec as non dup and rest as dup's similary last and false means mark all as dup's
+        df's = df.duplicated(keep, subset=[col,col]) #subset is the col to include without which complete record will be considerered as criteria
+        Note:- when we use .sum() along with duplicated() with interchanging keep values (first/last) there will not be any change in sum output.
+    
+    *to drop duplicates in
+        series  = s.drop_duplicates(keep,inplace=True)
+        df = df.drop_duplicates(keep,subset,inplace) #if no subset is provided then complete recod is checked to remove dup values
+    *to get the count of dup's then go for value_counts / count
+    *series has a unique() method that works only with series and returns list of unique values
+    *nunique() works for both s/df's1 and is same as count but for unique entries only
+        s - gives unique count
+        df - gives column wise count works same as count() but by deafult omits null values same as value_counts()
+        ***nunique has dropna=True/False option
+
+* remember we can use different python fnc such as sum/max/min along with other df methods - 
+    Ex:- df.isnull().sum(), df.isna().any()
+* df/s.count() (count not null values only)
+        1. for series it is basically count not null values directly 
+        2. for df it is 
+                there are 2 thimgs axis = 0/1
+                by default axis=0 i.e column wise count when axis = 1 i.e row-wise count
+* df/s.value_counts() (count all not null values also null but we have to use dropna=False) there is no axis concept in value_counts
+        1. for series value counts will give value and count for not null values by default
+        2. for df it is
+                by default we get rows wise count like for example - 
+                    A  B  
+                    4  3.0    1
+                    4  4.0    1
+                to get for individaul col or multiple col then we can use df[col].value_counts(dropna=False)
+
+* GROUP BY & HAVING-
+    Syntax - df.groupby(columns that you want to group with, dropna=False/True).agg(
+        #here is the cathy part - below ar the 4 different types included
+        output_col_name_w/o_quotes = (col_name_present_in_df, agg_func(count/min/max/sum/mean)), -> sql - sum(col1)
+        output_col_name_w/o_quotes = (col_name_present_in_df, lamdba x: x.apply(lamdba y: appropriate filteration).sum()/min()/max()/mean()/count()) -> sql - sum(case when amoutn > 200 then 1 else 0 end),
+        output_col_name_w/o_quotes = (col_name_present_in_df, lamdba x: x[df.loc[x.index, 'col_that will be used for filteration].notna() & df.loc[x.index,'email'].str.contains('.com)].mean()) -> sql - avg(case when email like '%.com' then amount else 0 end),
+        output_col_name_w/o_quotes = (col_name_present_in_df -> note here this col is irrelevant as this doesnt make sense check sql code for it, lamdba x: (df.loc[x.index,'col1']>df.loc[x.index,'col2']).sum()) -> sql - sum(case when col1 > col2 then 1 else 0 end)
+    ).reset_index(drop=True/Fasle)
+
+    *****Big Note when using count wihth null values in pandas alsways go for sum() insted of count() as it count FAlse also.
+    rest of the having-clause filteration can be done using boolan filteration method.
+
+* SORTING - 
+    df.sort_values([col1,col2], ascending=True/False or [True,Fasle], inplace=True/False, ignore_index=True/False)
+    df.sort_index(inplace=True, ignore_index)
+
+#.TRANSFORM method - 
+    Note:-
+    #order by has one or more col's
+    func() over()  -> df['sum'] = df['salary'].nunique() #any func can be applied
+    func() over(partition by col) -> df['sum'] = df.groupby('department')['salary'].transform('count')  #any func can be applied
+    func() over(order by col) -> df = df.sort_values('salary',ascending=False), df['sum'] = df['salary'].cumsum() #only cumsum(),cumin().cummax() can be applied
+    func() over(partition by col order by col) -> df = df.sort_values('salary',ascending=False), df['sum'] = df.groupby('department')['salary'].cumcount() + 1 #count and sum both works
+
+    to summarize() pandas can handle all the window func except count() over(order by col)
+            
+* RANKING - #ranking func() try to sort first good practise
+    #order by has one col
+    rank(),dense(),rank() over(order by col) -> df['rank'] = df['salary'].rank(method='first') first/min/dense all work
+    rank(),dense(),rank() over(partiton by col order by col) -> df['rank'] = df.groupby('department')['salary'].rank(method='first') first/min/dense all work
+
+    #order by has more than one col
+    except row_number() and can be only using cumcount()
+    pandas doesn't handle more than on col in order by correctly as sql but still you can give a try by creating a tuple for the order by col's
+
+#lead/#lag
+df['col'] = df['col'].shift(1/-1) -> -1 = lead and 1 = lag
+df['col'] = df.groupby('col')['col'].shift(-1/1)
+
+#PIVOT AND PIVOT_TABLE
+    1. Pivot - Reshape the data but without groupby (on unique data only col/col+index)
+        df.pivot(index=, columns= , values= ) #only col is mandatory if no index then 0,1.. and all the remaining col will be taken as values
+        # if only col is given then it should be unique
+        # if index+col is give both togehtr should be unique
+        # not fill_value parameter in this
+        # reset_index() is also usefull unlike in groupby
+
+    2. PIVOT_TABLE - 
+        df.pivot_table in this we have mainly 5 parameter
+            index, values, columns, fill_value, aggfunc
+            by default pivot table will need atleast cloumns or index to be passed for grouping
+            and also if my complete df excpet the columns passed in index/columns param are number then "mean" will be calculated.
+            1. by default index/columns needed and aggfunc = mean(auto applied if not passed)
+            2. If you want both group-by columns as row hierarchy → put both in index.
+               If you want one to spread horizontally like pivoted columns → put one in index, one in columns.
+            3. when passing multiple col's use list in index/columns/values but for aggfunc use dic {colanme:func}
+            # reset_index() is also usefull unlike in groupby
+    
+    3. MELT METHOD - USED TO UNPIVOT THE PIVOTTED DATA FROM PIVOT/PIVOT_TABLE
+        Things to note:
+        It does similar job as union/unionall n sql for unpivotting rememberthat
+        pd.melt(df, id_vars='', value_vars='', var_name='', value_name='')
+            id_vars -> it is the main col
+            value_vars -> It is the col that needs to be unpivotted #not mandatory
+            var_name -> u=once unpivot is completed it is the name of that col
+            value_name -> it is the col name of unpivotted data col
+            #when unpivotting valuevars has to be passed with list of col name
+
+Points to Note:-
+1. In DF row = Index, Col is tho Col only remeber that.
+2. ALways note that when ever you have null values alsways note to use isna() or is null() or notna() or not null()
+3. when you use joins the joining id is will always comes once but not joining duplicate it will come as _x, _y
+//joining multiple tables is possible but using chaining - 
+    df = df1.merge(df2, on="id", how="inner") \
+            .merge(df3, on="id", how="left") \
+            .merge(df4, on="id", how="right")
+4. when doing pandas always remember not just you have to use pandas but also python ex:- if one col analysis then work on python and then convert to appropriate series and df.
+5. always remeber when grouping the agg col is always imp more than grouping col.
+6. do not forget tolist and toframe also for df->list means alwasy mentioning col name.
+7.     if len(lt)>0:
+        val = pd.Series(max(lt), name='num').to_frame()
+    else:
+        val = pd.DataFrame({'num':[None]})
+8. remeber you can create a col using union and add appropriate data in sql wthout using any col from any table - 
+        Ex:- select 'Low Salary' as category union select 'Average Salary' union select 'High Salary'
+9. for adding a new columns to df we can give lt/scalar/series
+10. always note use pd.merge in case of find something from one table not present in table 2
+11. creating a new col in same df and applying some func applies to a nes col and while creating a new var but applying the same func and using boolean filtering will filter out the data
+12. list is an imp ds in pandas everything revolves around list.

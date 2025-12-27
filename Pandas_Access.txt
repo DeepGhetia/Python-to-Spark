@@ -1,0 +1,48 @@
+when we talk about accessing in pandas - 
+
+    //here you have choie row/col or both
+    1. df.loc[row,col] - in rows slicing is allowed and in columns also but we can pass the list in columns also (slicing allowed all inclusive) 
+    syntax:- df.loc[start:stop:step]
+    2. df.iloc[row,col] - i(integer) - we can only use integer in both rows and columns (slicing allowed)
+
+    //here you dont have choice
+    3. df.at[row,col] - salar value access means we can pass only 1 index and 1 col at a time
+    4. df.iat[row,col] - similar to at but integer
+
+Boolean filteration is easy - 
+mask = df['col']=='good' ('&','|','~')
+df = df[mask]
+print(df)
+
+Always Note there is diff between tese two - 
+val = df['Age'].mean()
+df['mean'] = df['Age'].mean()
+# two main scenarios - 
+        1. creating a new df - df[((df['A']>2) & (df['C']>10))][['C','D']]
+        2. just getting a saclar value - val = ((df['A']>2) & (df['C']>10)).sum() note here before sum() we will get  aseres of true/false values
+
+we have special func - 
+    1. .isin([]) acts as a in in sql pass list in isin func
+    2. .between(start,stop) as a between in sql inclusive ex:- col between 100 and 200
+    3 .replace(something, something else) #more than one ele then use dic
+
+most imp - 
+////now there is a scenario - 
+that my df has a single col
+hence Always go for one of these - 
+    df['string'].tolist()
+    df['string'].values.tolist()
+
+//
+isin = in also we have ~ = not in
+contains = like
+multiple contains (|) = like or //we can also use any()/all()
+.between and .replace()
+
+#
+1. rearranging cols
+2. df.rename(columns={}, inplace=True/Fasle)
+3. selecting df[[col1 ,col2]]
+4. chaining means multiple func applied in a single line
+5. 
+

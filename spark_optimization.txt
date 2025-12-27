@@ -1,0 +1,62 @@
+1. shuffle is most costly operation hence avoid wide operation or get the data to that stage where data is less hence little shuffle.
+wide tran maens 200 part by default as er config
+there are types of optimization -
+    1. code level
+        - use cache
+        - use reducebykey over groupbykey
+        - use broadcast var over join for dimenasion tables
+        - select vs wothcolumn for more columns
+        - partitionBy([col_name])  - called as partition pruning
+            - creates folder/directory level every distinct data on column will create folders and files will be equal to no of partitions by default
+            - use case is only less data        
+          bucketBy(5,col_name) // called as partition pruning
+            - creates only files and no of files is equal to no we pass in paratmeter 
+            - can only be used as table (save as table)
+          we can also use both together but folder frst i.e. partition and then bucketing
+        - AQE in joins - 
+            1. to solve partition skew (also can be done manually called as salting)
+            2. to solve cpu overhead problem of removing empty shuffle partitions if no data in case of wide transformation
+            3. to solve static DAG problem by using AQE to calculate stats at run time so that join strategy can be changed post shuffle.
+        - joining strategy - 
+            1. if both smll tables go for broadcast
+            2. if one small <10mb then again broadcast
+            3. but if both are huge then 2 choices
+                * shuffle sort merge join 
+                * shuffle hash join
+                * but the major optimisation is go for sort merge broadcast join check pyspark.txt for more info
+    2. cluster level (executors) -
+
+cache (very imp)- 
+commands (DF):- 
+1. df = df1.cache()
+2. df.unpersist() //uncache()
+
+DF
+    df.cache()       // lazy
+    df.count()       // slow (computes + caches)
+    df.count()       // fast
+SPARK SQL
+    CACHE TABLE table1;  -- eager, materializes now (can take time)
+    SELECT count(*) FROM table1;  -- fast
+    SELECT * FROM table1;         -- fast
+scenario where cache can have less performance - 
+1. say u have an extrenal table whee file format is parquet and since count of recs are part of metadata hence the result is fast
+when compare to cacehd data as in cache scenario we have to scan the data though it is fast as process local
+
+Persist - 
+from pyspark.storagelevel import StorageLevel
+
+df1 = df.persist(StorageLevel(param1,param2,param3,param4,param5))
+param - 
+1.disk - True/False
+2.mem -  True/False
+3.offheap -  True/False
+4. deserailised - True/False (default - serialized)
+5.no of replicaion -  no like 1,2,3
+
+to uncache or unpersist - unpersist()
+
+***logical plan
+1. spark pushes filter pushes up in order called as predicate push down
+2. okay so process local means same exe and node local means same machine or node
+3. in case of cache process local is mostly cahced data and other in node local

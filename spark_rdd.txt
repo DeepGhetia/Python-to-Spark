@@ -1,0 +1,41 @@
+//imp rdd = list -> playing with list.
+      df = schema on rdd (metadata)
+      spark.sql -> data and schema ar diff places consider example of External Tables
+
+//to come from higher level df to rdd and use rdd methods syntax is  - df.rdd.rddfuncs
+1. sparkContext(sc) comes inside spark and it is the entry point to all the worker nodes where as saprksession is teh entry point for spark
+    SparkContext is the entry point to low-level RDD operations and cluster communication.
+    SparkSession is the higher-level unified entry point to Spark, including SQL, DataFrame, Dataset, and also exposes SparkContext internally.
+2. parallelize(iterable) //this doest give df but just transfer sthe data from driver node to worker
+3. .toDF([lit of col]) or .createDF(rdd)
+4. .collect()/take/show get the result from worker to driver node //every action send te result from worker node to driver node
+5. we can also use .take(no of records to display)
+6. for 
+   rdd - rdd.getNumPartitions() to get the no of partitions
+   df - df.rdd.getNumPartitions() to get the no of partitions
+7. there are 2 properties 1. defaultParallelism 2. defaultMinPartitions //note these are properties nt methods
+Imp Methods - 
+    1. flatmap
+    2. map
+    3. reducebykey
+    4. sortby - works for key, value pair or even on a single iterable using lambda 
+    5. sortbykey - wroks only on key, value pair with no arquements ex:- .sortbykey(True/False)
+    6. reduce
+    7. filter
+    8. distinct
+    9. count - if it is an dirct action hence no shuffle
+    10. coubtByValue() is an action like reduce but with out lambda method is used to replace map+recudeBykeY and output is got in dict format 
+        ***and very imp it is an action hence plan is same as count
+    11. groupByKey() no parameter just give 2 items in pair as input
+    12. rdd = rdd.repartition(10)
+    13. rdd = rdd.coalesce(10)
+12. rdd1.join(rdd2) -  //join is a wide transformation
+    here we have a problem there is a shuffle which is costly hence use boradcasting
+    broadcasting var or broadcasting join - 
+    but to do boradcasting, you cannot do it in worker node you have to do it from driver node - 
+    so you can use an action as action returns df/scalar value to driver program
+    sytax - final = spark.sc.broadcast(smallrdd.collect())
+    and nothing to further also advantage of bradcadting is no shuffle at all hence broadcasting is a narrow transformation
+13. caching in rdd and df is lazy but in spark sql by default it is eager we can change it to lazy also.
+14. spark.sparkContext.textFile('path')
+15. rdd.saveAsTextFile('path not present')

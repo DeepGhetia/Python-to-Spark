@@ -1,0 +1,7 @@
+1. we can create a table view using df- 
+    df.createOrReplaceTempView('table name')
+    new df = spark.sql('select * from table name') //temp view table can be accessed using spark.sql
+2. we can convert table / view to df using - 
+    df = spark.read.table('orders') or 
+    df = spark.sql('') or
+    df = spark.table('table name')
