@@ -51,7 +51,7 @@ param -
 1.disk - True/False
 2.mem -  True/False
 3.offheap -  True/False
-4. deserailised - True/False (default - serialized)
+4.deserailised - True/False (default - serialized)
 5.no of replicaion -  no like 1,2,3
 
 to uncache or unpersist - unpersist()
