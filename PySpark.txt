@@ -50,8 +50,10 @@ file in df - types(csv, json, jdbc, parquet, orc, table)
     1. df.write \
        .mode('overwrite/append/ignore/errorifexsists') \
        .compression = 'snappy/lzo/gzip/bzip2', \
-       .partitionBy(['col-nme']) \   ##so when you partiton by col then that col's distinct count = folder count with file count = partition cnt
-       .bucketBy(no of files, [col name]) \ ##creates files only and no = no passed per partition (ex:- if 9 part then every part has no of files mentioned by user) but can be saved as table only
+       .partitionBy('col','col1','col2') \   ##so when you partiton by col then that col's distinct count = folder count with file count = partition cnt
+       .bucketBy(no of files, [col name]) \ ##Every partition will have files equal to the number of buckets mentioned while
+                                            creating the dataframe. (ex:- if 9 part then every part has no of files mentioned in bucketby paratmeter) but can be saved as table only
+       .sortBy('col') //note here sortby is done after bucketing only imp interview question sorting of data happens in every bucket not before bucketing
        .csv('folder path only - as this is not pandas') //for bucket by e cannot use csv,paruet etc hence go for option('path','.......')
        .saveAsTable('dbname.tabname')
 
