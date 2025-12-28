@@ -1,17 +1,15 @@
-from datetime import datetime, timedelta
+from datetime import datetime,timedelta
 from dateutil.relativedelta import relativedelta
 
-year = '2023'
-start = datetime.strptime('01-01-'+year,'%d-%m-%Y')
-final = []
-
+start = datetime.strptime('01-01-2025','%d-%m-%Y')
+lt = []
 for _ in range(1,13):
     end = (start + relativedelta(months=1)) - timedelta(days=1)
-    for j in range(end.day,start.day-1,-1):
-        input = f'{str(j).zfill(2)}-{str(start.month).zfill(2)}-{start.year}'
-        val = datetime.strptime(input,'%d-%m-%Y').strftime('%a')
-        if val == 'Fri':
-            final.append(input)
+    for val in range(end.day,start.day-1,-1):
+        inter = f'{str(val).zfill(2)+'-'+str(end.month).zfill(2)+'-'+str(end.year)}'
+        temp = datetime.strptime(inter,'%d-%m-%Y').strftime('%a')
+        if temp=='Thu':
+            lt.append(inter)
             break
-    start = start + relativedelta(months=1)
-print(final)
+    start = end + timedelta(days=1)
+print(lt)
