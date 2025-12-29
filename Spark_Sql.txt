@@ -5,3 +5,13 @@
     df = spark.read.table('orders') or 
     df = spark.sql('') or
     df = spark.table('table name')
+
+External tables:
+Data is stored in the Data Lake (S3/ADLS/etc).
+Metadata is stored in Hive Metastore.
+Dropping the table removes only metadata, data remains.
+
+Managed tables:
+Data is stored in /user/hive/warehouse/<db>.db/<table>/.
+Metadata is stored in Hive Metastore.
+Dropping the table removes both data and metadata.
