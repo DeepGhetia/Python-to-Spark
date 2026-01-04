@@ -1,4 +1,4 @@
-Default methods
+Default methods always come at the back of col object remember
     1. astype()
     2. between()
     3. contains() -> no other options like case=True/False this method is by default case sennsitive also multiple | cannot be used hence use & or | operations in braces.

@@ -15,3 +15,8 @@ Managed tables:
 Data is stored in /user/hive/warehouse/<db>.db/<table>/.
 Metadata is stored in Hive Metastore.
 Dropping the table removes both data and metadata.
+
+| Table type | Data location                 | Metadata  | Drop table behavior |
+| ---------- | ----------------------------- | --------- | ------------------- |
+| Managed    | HDFS (`/user/hive/warehouse`) | Metastore | Data deleted        |
+| External   | Any HDFS path                 | Metastore | Data preserved      |

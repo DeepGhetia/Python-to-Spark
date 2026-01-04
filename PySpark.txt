@@ -1,6 +1,7 @@
 Note:-
 1. Pyspark is list and tup friendly and not dic.
 2. Packing and Unpacking concept is imp here.
+2.1 - when comverting string to float if values are both in float and string then only float values are populated and rest string values come as nulls due to mode = permissive
 3. pyspark follows strictness (example data types like array and map) and immutability (example creating a new df).
 4. In pandas/py boolean and integer are bhai bhai but not in spark due to strictness
 5. Alwasy keep in mind while filtering use and/or properly based on requirement
@@ -15,7 +16,7 @@ Note:-
 
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
-from pyspark.sql.functions import col, lit, row, upper, lower, cast(astype can also be used but astype is builtin), concat, datediff, concat_ws, when, round
+from pyspark.sql.functions import sha2, col, lit, row, upper, lower, cast(astype can also be used but astype is builtin), concat, datediff, concat_ws, when, round
 #an hack cocnat() and concat_ws() does implicit casting of int/float etc to stirng before concatenating.
 
 emty df can be created using 4 methods ony - 
