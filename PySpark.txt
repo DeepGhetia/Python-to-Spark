@@ -249,3 +249,7 @@ Adaptive Query Execution -
     i.e. what happens is the we have partition and bigger partition is divided with intent that evry sub partiton has same no of rec/size and then join takes place.
 3. instead of static DAG aqe can help saprk to dynamically swtich join strategies based on run time stats and this happens during shuffle and shuffle is not avoided in this case but 
    braodcasting is used instead of shuffle sortmerge join
+
+#union concept- 
+final = df.union(df1) (union-all)//note union in pyspark is like union all in sql memaing dup also included
+final = df.union(df1).distinct() (union)

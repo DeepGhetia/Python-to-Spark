@@ -20,3 +20,17 @@ Dropping the table removes both data and metadata.
 | ---------- | ----------------------------- | --------- | ------------------- |
 | Managed    | HDFS (`/user/hive/warehouse`) | Metastore | Data deleted        |
 | External   | Any HDFS path                 | Metastore | Data preserved      |
+
+Very Imp checklist - 
+| Situation                | Overwrite path directly? |
+| ------------------------ | ------------------------ |
+| Path only, no table      | ✅ Yes                    |
+| External table exists    | ❌ No                     |
+| Table dropped            | ✅ Yes                    |
+| Writing via `insertInto` | ✅ Yes                    |
+
+Issue faced in project overwrite the path with new files as external table is created hence
+    1. either create a new path and then drop the table and point to new path
+    2. drop the table first update the same path and create the same table again - best if production
+
+Also note cannot overwrite the external table or file pointed out by external table we need to drop first
