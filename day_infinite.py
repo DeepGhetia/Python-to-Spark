@@ -1,4 +1,6 @@
-lt = {1,2,3,4,5,5,6,6}
-lt1 = {3,2,4,1,4,5,9,9,9,9}
-lt.intersection_update(lt1)
-print(lt)
+from functools import reduce
+lt = [1,2,3,4,5]
+
+print(list(map(lambda x: x%2==0,lt))) #transformation
+print(list(filter(lambda x: x%2==0,lt))) #filtering (select/project)
+print(reduce(lambda x,y:x*y,lt)) #aggregation
