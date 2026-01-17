@@ -34,3 +34,16 @@ Issue faced in project overwrite the path with new files as external table is cr
     2. drop the table first update the same path and create the same table again - best if production
 
 Also note cannot overwrite the external table or file pointed out by external table we need to drop first
+
+Final pointers very imp:-
+1. hive has managed and external tables
+2. managed tables can be created in default dir /user/hive/arehouse this is where data is present to avoid data cluttering avoid writting it here 
+   write it in /user/id/warehouse using spark.sql.warehouse.dir
+3. metadata is still in metasotre in db not issues here as no concept of multiple catalogs like DATABRICKS
+4. external table and managed tbles in hive both can only have insert and select properties - Y? because insertion creates new files
+   managed - new files created at /user/id/warehouse/db/tablename/newfile -added here
+   external - new files created at /external file path/new files added here
+   they are diff from delta tables in DB as DB supports smooth metadata managemet.
+5. finally very imp all the file formats in spark are immutable you might have seen when using multiple modes in spark while writing the data
+   that works only at folder level hence all types are immutable even in DB delta lake uses metadata to track changes.
+ 
