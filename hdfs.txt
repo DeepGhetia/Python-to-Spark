@@ -5,3 +5,7 @@ when ever we fire hdfs/hadoop command it will iteract with namenode
     local to hdfs - 
         1. hadoop fs -put <local file path> <hadoop path>
         2. copyFromlocal
+        3. hadoop fs -rm
+        4. hadoop fs -cat to check the data
+    hdfs to local - 
+        1. hadoop fs -get or copyToLocal

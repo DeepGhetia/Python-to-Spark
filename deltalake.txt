@@ -1,0 +1,38 @@
+1. Write / Insert ✅ (Correct)
+Your logic: Files written first -> JSON log created last.
+Verdict: Perfect. This ensures no "ghost data" if a write fails halfway.
+
+2. Update & Partial Delete ✅ (Correct)
+Your logic: Read data -> Modify in memory -> Write NEW files -> Log creates JSON (Add New / Remove Old).
+Verdict: Perfect. This is the Copy-on-Write mechanism.
+
+3. Full / Partition Delete ✅ (Correct)
+Your logic: Skip writing data -> Directly create JSON (Remove Old).
+Verdict: Perfect. This is the Metadata-only optimization.
+
+4. Reading (Refining your wording)
+Your words: "all the files are checked or checkout is checked"
+Refinement: You are likely thinking of the Checkpoint.
+
+How it actually works:
+The reader checks the _delta_log folder.
+It looks for the latest Checkpoint file (e.g., 000010.checkpoint.parquet). This file is a summary that says "As of version 10, these 50 files are valid."
+Then, it reads any new JSON files created after that checkpoint (e.g., 000011.json, 000012.json) to apply the latest updates.
+It combines them to get the final list.
+
+| Operation        | Writes Parquet Files | Writes JSON Log    | Old Files Removed |
+| ---------------- | -------------------- | ------------------ | ----------------- |
+| INSERT           | ✅ Yes                | ✅ After data write | ❌ No              |
+| READ             | ❌ No                 | ❌ No               | ❌ No              |
+| UPDATE           | ✅ Yes (rewritten)    | ✅ Yes              | Logical remove    |
+| DELETE (partial) | ✅ Yes (rewritten)    | ✅ Yes              | Logical remove    |
+| DELETE (full)    | ❌ No                 | ✅ Yes              | Logical remove    |
+
+Unity Catalog:-
+Sce 1:- if metasotre is not configured with path then catalog needs to created with path no option and have to add managed keyword.
+Sce2:- if metasotre has path then catalog can be created with just create catalog catalog_name;
+
+for extenal tables - 
+Sce 1:- cretae catalog with managed name and then add external table easy
+Sce 2:- if want to create external table without manage key word in catalog then your meta store should have some path 
+         because this will garuntee catalog creation without manage keyword
