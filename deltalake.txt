@@ -1,3 +1,11 @@
+***
+The Scan: Delta looks at all files (unless you have partitions/Z-ordering to help it skip some).
+
+The Decision:
+If data matches: The file is "tainted." Delta reads it, removes/updates the rows, writes a new file, and marks the old one for removal.
+If NO data matches: The file is ignored. It is left alone on the disk and no new file is written for it.
+The Log: The transaction log (json) records the "Add" (new files) and "Remove" (tainted files). The files that didn't match are not mentioned in the log because they remain valid.
+
 1. Write / Insert ✅ (Correct)
 Your logic: Files written first -> JSON log created last.
 Verdict: Perfect. This ensures no "ghost data" if a write fails halfway.
