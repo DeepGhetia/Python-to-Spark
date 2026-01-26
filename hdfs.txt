@@ -9,3 +9,7 @@ when ever we fire hdfs/hadoop command it will iteract with namenode
         4. hadoop fs -cat to check the data
     hdfs to local - 
         1. hadoop fs -get or copyToLocal
+        5. hadoop fs -mkdir
+        6. hadoop fs -mv //move
+        7. hadoop fs -cp //copy with in hdfs
+        8. hadoop fs -ls -h (human readable file size)

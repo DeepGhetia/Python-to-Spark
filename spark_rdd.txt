@@ -39,3 +39,43 @@ Imp Methods -
 13. caching in rdd and df is lazy but in spark sql by default it is eager we can change it to lazy also.
 14. spark.sparkContext.textFile('path')
 15. rdd.saveAsTextFile('path not present')
+
+Final:-
+1. reduce is an action takes 2 parameter
+2. reduceByKey is an transformation takes 2 parameter
+3. groupByKey is an transformation takes no parameter - returns and iterable as value
+4. sortBy is an transformation takes n no of parameter but sorts like sorted() in py 
+5. sortByKey is an transformation takes no parameter but can pass ascending=
+6. countbyvalue() is an transformation no parameter
+7. filter you know
+8. map you know
+9. flatmap you know
+10. distinct you know
+11. count,take,collect,show- same
+
+repartition vs coalesce in Spark
+repartition(n)
+Always involves a full shuffle.
+Tries to evenly distribute records across partitions.
+Can be used to increase or decrease the number of partitions.
+Because of the shuffle, it’s more expensive, but results in balanced partition sizes.
+Internally, repartition is equivalent to:
+coalesce(n, shuffle = true)
+
+coalesce(n)
+By default, does NOT shuffle.
+Typically used to reduce the number of partitions.
+It works by collapsing multiple parent partitions into fewer ones.
+Since there’s no shuffle, data is not evenly redistributed, so uneven partition sizes can occur.
+Much cheaper than repartition when shrinking partitions.
+
+Key takeaways
+To increase partitions → you must use repartition (coalesce can’t do this without shuffle).
+
+To decrease partitions:
+Use coalesce if you want better performance and can tolerate uneven partitions.
+Use repartition if you need evenly sized partitions.
+
+Conceptually:
+repartition = shuffle + rebalance
+coalesce = merge partitions (no shuffle)
