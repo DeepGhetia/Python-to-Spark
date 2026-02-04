@@ -1,0 +1,6 @@
+Task,Method,Mechanism - Delta Lake (only upcasting or widening is allowed)
+Add Column,"option(""mergeSchema"", ""true"")",PySpark Write (Additive)
+Rename Column,ALTER TABLE ... RENAME COLUMN,SQL (Metadata)*
+Delete Column,ALTER TABLE ... DROP COLUMN,SQL (Metadata)*
+Widen Type,ALTER TABLE ... TYPE <new_type>,SQL (Metadata)
+Complex Type Change,"option(""overwriteSchema"", ""true"")",PySpark Write (Rewrite)
