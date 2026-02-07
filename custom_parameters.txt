@@ -9,7 +9,6 @@ spark.sql.warehouse.dir
 4. spark.conf,get('spark.sql.files.maxPartitionBytes')
 5. spark.conf.get(spark.sql.files.openCostInBytes')
 9. spark.dynamicAllocation.enabled
-10. spark.sql.executor.cores / memory / instances
 12. .config('spark.executor.memoryOverhead')
 13. .config('spark.executor.memory')
 14. .config('spark.memory.offHeap.size')

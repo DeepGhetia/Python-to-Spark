@@ -4,3 +4,6 @@ Rename Column,ALTER TABLE ... RENAME COLUMN,SQL (Metadata)*
 Delete Column,ALTER TABLE ... DROP COLUMN,SQL (Metadata)*
 Widen Type,ALTER TABLE ... TYPE <new_type>,SQL (Metadata)
 Complex Type Change,"option(""overwriteSchema"", ""true"")",PySpark Write (Rewrite)
+
+Requires - below property to be enabled - 
+-- ALTER TABLE delta.`/Volumes/workspace/default/cust/managed` SET TBLPROPERTIES ('delta.columnMapping.mode' = 'name')

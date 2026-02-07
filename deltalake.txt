@@ -51,3 +51,29 @@ Sce 1:- cretae catalog with managed name and then add external table easy
 Sce 2:- if want to create external table without manage key word in catalog then your meta store should have some path 
          because this will garuntee catalog creation without manage keyword
 
+###
+schema enforcement - delta Lake
+1. implcit widening or upcasting if posible does it default on schema enforcement also
+2. this is pure schema on write acid compatible - either all or none
+3. adhere to the schema
+
+###schema evolution - delta lake
+1. add of cols possible
+2. ordering also possible
+3. Missing Data (few cols did not come from new upstrem) also possible null in this case 
+(till here it is same as parquet format)
+
+4. removal or cols i.e. drop col (use alter table command)
+alter table name set tblproperties ('delta.columnMapping.mode'='name')
+-- alter table cust drop column ingestdate;
+
+5. renaming the cols is possible by firstly using 
+alter table name set tblproperties (delta.columnMapping.mode='name')
+and then -- ALTER TABLE cust RENAME COLUMN id TO cust_id;
+
+6. data type very imp 
+* upcasting easyily possible if allowed like int to lon gand float to double
+* loosig of data opertion like int to string or string to int har conversion not possible in delta lake 
+    there are 2 apporaches to counter this 
+    1. add new col with conversion
+    2. write the whole df with new schema
