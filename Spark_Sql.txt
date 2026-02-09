@@ -46,4 +46,8 @@ Final pointers very imp:-
    they are diff from delta tables in DB as DB supports smooth metadata managemet.
 5. finally very imp all the file formats in spark are immutable you might have seen when using multiple modes in spark while writing the data
    that works only at folder level hence all types are immutable even in DB delta lake uses metadata to track changes.
- 
+6. very imp note about msck repair table tablename - 
+   1. this works for both managed and external table what it does is it only deals with partitioning if a table has 
+      and will check the new folder or files and add the new files when spark write the data to folder directly and then this command refreshes the table
+   2. this is does not make sense when spark write the data to table directly becaue in first case the spark did bypass the hive metastore but while writing the data to table it did use hive metastoe.
+7. hive is schema on read very imp that means ex:- data has 5 cols but hive table schema has 4 cols hence user when select * sees only 4 cols
