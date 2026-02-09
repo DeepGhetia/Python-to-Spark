@@ -51,3 +51,4 @@ Final pointers very imp:-
       and will check the new folder or files and add the new files when spark write the data to folder directly and then this command refreshes the table
    2. this is does not make sense when spark write the data to table directly becaue in first case the spark did bypass the hive metastore but while writing the data to table it did use hive metastoe.
 7. hive is schema on read very imp that means ex:- data has 5 cols but hive table schema has 4 cols hence user when select * sees only 4 cols
+8. plus acid is allowed only when table in in orc format + transaction enabled.
